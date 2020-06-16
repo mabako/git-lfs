@@ -38,6 +38,25 @@ begin_test "uninstall outside repository"
 )
 end_test
 
+begin_test "uninstall --local with conflicting scope"
+(
+  set -e
+
+  reponame="$(basename "$0" ".sh")-scope-conflict"
+  mkdir "$reponame"
+  cd "$reponame"
+  git init
+
+  set +e
+  git lfs uninstall --local --system 2>err.log
+  res=$?
+  set -e
+
+  [ "Only one of --local and --system options can be specified." = "$(cat err.log)" ]
+  [ "0" != "$res" ]
+)
+end_test
+
 begin_test "uninstall outside repository without access to .git/lfs"
 (
   set -e
@@ -85,7 +104,6 @@ begin_test "uninstall inside repository with --skip-repo"
   [ "" = "$(git config filter.lfs.process)" ]
 )
 end_test
-
 
 begin_test "uninstall inside repository with default pre-push hook"
 (
